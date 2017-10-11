@@ -20,6 +20,7 @@ def keys_pressed():
             game_start = True
             return game_start
 
+
 class Screen:
     def __init__(self):
         self.width = 1500
@@ -71,22 +72,61 @@ class Screen:
         self.sleep(1)
         self.wipe()
 
+
 class Block:
     def __init__(self):
         pass
+
 
 class Obstacle:
     def __init__(self):
         pass
 
+
 class Camera:
     def __init__(self):
         pass
+
 
 class Upgrades:
     def __init__(self):
         pass
 
+
+class GameObject(Screen):
+    def __init__(self):
+        super().__init__()
+
+        self._x = self.width
+        self._y = random.randrange(0, self.height)
+
+        self.velocity = 20
+
+        self.time = pygame.time.get_ticks()
+        self.collided = False
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = value
+
+    def move(self):
+        delta_time = pygame.time.get_ticks() - self.time
+        self.time = pygame.time.get_ticks()
+
+        self._x -= self.velocity * delta_time
+
+    def check_collision(self, player: object):
+        # TODO: PLAYER POSITION PRESUMED TO BE ON THE EDGE OF THE SCREEN, CHANGE THIS
+        if self._x == 0:
+            if self._y == player.y:
+                self.collided = True
+
+    def update(self):
+        self.check_collision()
 
 # Calling screen class to make screen
 screen = Screen()
