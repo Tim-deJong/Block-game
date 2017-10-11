@@ -18,6 +18,9 @@ class Screen:
         self.screen_caption = pygame.display.set_caption('Collision')
         self.colour_background = (255, 255, 255)
         self.colour_text = (0, 0, 0)
+        self.speed = 10
+        self.score = 0
+
 
     def wipe(self):
         self.set_screen.fill(self.colour_background)
@@ -61,13 +64,58 @@ class Screen:
         self.sleep(1)
         self.wipe()
 
-class GameObject:
+    def create_object(self,object_to_create,y):
+        object_to_create()
+        object_to_create.y = random.randint(0,self.width)
+
+    def move_object(self):
+        pass
+
+
+class Block:
     def __init__(self):
         pass
 
 class GameManager:
     def __init__(self):
         pass
+
+class GameObject(Screen):
+    def _init_(self):
+        super()._init_()
+
+        self._x = 100
+        self._y = 500
+        # self._x = self.width
+        # self._y = random.randrange(0, self.height)
+
+        self.velocity = 20
+
+        self.time = pygame.time.get_ticks()
+        self.collided = False
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = value
+
+    def move(self):
+        delta_time = pygame.time.get_ticks() - self.time
+        self.time = pygame.time.get_ticks()
+
+        self._x -= self.velocity * delta_time
+
+    def check_collision(self, player: object):
+        # TODO: PLAYER POSITION PRESUMED TO BE ON THE EDGE OF THE SCREEN, CHANGE THIS
+        if self._x == 0:
+            if self._y == player.y:
+                self.collided = True
+
+    def update(self):
+        self.check_collision()
 
 class Coin(GameObject):
     def __init__(self):
@@ -139,13 +187,59 @@ class Player:
 
 
 
+    def check_collision(self, player: object):
+        # TODO: PLAYER POSITION PRESUMED TO BE ON THE EDGE OF THE SCREEN, CHANGE THIS
+        if self._x == 0:
+            if self._y == player.y:
+                self.collided = True
+
+    def update(self):
+        self.check_collision()
+
+class Coin(GameObject):
+    """Generates food particles and the choose a random position to deploy them, code also deploys them"""
+
+    def __init__(self):
+        """This will generate a random x position, y position, collor and radius for the food"""
+        super().__init__()
+        self.radius = random.randint(4)
+        self.x_coordinate_coin = self.width
+        self.y_coordinate_coin = random.randint(self.width)
+
+        self.location = (self._x, self._y)
+        self.colour = (255,255,0)
+
+    def draw(self):
+        pygame.draw.circle(screen.set_screen,self.colour,self.location,self.radius)
+    def add_score(self):
+        if self.collided == True:
+            del self
+            self.score += 1
+            self.draw(self)
+
 # Calling screen class to make screen
 screen = Screen()
 player = Player()
 screen.wipe()
+coin = Coin()
+player = Player()
 
 # Countdown till start
 game_start = True
+
+while True:
+    tnow = float(pygame.time.get_ticks()) / 1000.
+    dt = min((tnow - t0) * 2, maxdt)
+    screen.fill(colour_background)
+    pygame.event.pump()
+
+    screen.wipe()
+    keys_pressed()
+    print(game_start)
+    if game_start == True:
+        print('...')
+        break
+
 
 while game_start:
     screen.game_start()
