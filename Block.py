@@ -10,17 +10,6 @@ from math import *
 pygame.init()
 pygame.font.init()
 
-
-def keys_pressed():
-    keys = pygame.event.get()
-    for event in keys:
-        if event.type == pygame.QUIT:
-            pygame.quit()
-        if event.type == pygame.K_ESCAPE:
-            game_start = True
-            return game_start
-
-
 class Screen:
     def __init__(self):
         self.width = 1500
@@ -72,81 +61,98 @@ class Screen:
         self.sleep(1)
         self.wipe()
 
-
-class Block:
+class GameObject:
     def __init__(self):
         pass
 
-
-class Obstacle:
+class GameManager:
     def __init__(self):
         pass
 
+class Coin(GameObject):
+    def __init__(self):
+        self.score = 0
+        self.radius = 5
 
-class Camera:
+
+class Wall(GameObject):
     def __init__(self):
         pass
-
 
 class Upgrades:
     def __init__(self):
         pass
 
-
-class GameObject(Screen):
+class Player:
     def __init__(self):
-        super().__init__()
+        self.colour = (32, 178, 170)
+        self.width = 25
+        self.height = 25
+        self.x = 125
+        self.y = 375
+        self.speed_y = 0
+        self.a = 0
+        self.speed_max_y = 0
 
-        self._x = self.width
-        self._y = random.randrange(0, self.height)
-
-        self.velocity = 20
-
-        self.time = pygame.time.get_ticks()
-        self.collided = False
-
-    @property
-    def x(self):
-        return self._x
-
-    @x.setter
-    def x(self, value):
-        self._x = value
+    def update_position(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    self.speed_y = 0
+                    self.a = 1
+                    self.speed_max_y = 3
+                    break
+                if event.key == pygame.K_UP:
+                    self.speed_y = 0
+                    self.a = -1
+                    self.speed_max_y = -3
+                    break
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_DOWN:
+                    break
+                if event.key == pygame.K_UP:
+                    break
 
     def move(self):
-        delta_time = pygame.time.get_ticks() - self.time
-        self.time = pygame.time.get_ticks()
+        if self.y < 0:
+            self.speed_y = 0
+            self.y += 1
+        elif self.y > screen.height - self.height:
+            self.speed_y = 0
+            self.y -= 1
+        else:
+            if self.speed_y < abs(self.speed_max_y):
+                self.speed_y += self.a
+            elif self.speed_y > abs(self.speed_max_y):
+                self.speed_y = self.speed_max_y
 
-        self._x -= self.velocity * delta_time
+        self.y += self.speed_y
+        self.y += self.speed_y
 
-    def check_collision(self, player: object):
-        # TODO: PLAYER POSITION PRESUMED TO BE ON THE EDGE OF THE SCREEN, CHANGE THIS
-        if self._x == 0:
-            if self._y == player.y:
-                self.collided = True
+    def draw(self):
+        screen.set_screen.fill(self.colour, (self.x, self.y, self.width, self.height))
 
     def update(self):
-        self.check_collision()
+        self.update_position()
+        self.move()
+        self.draw()
+
+
 
 # Calling screen class to make screen
 screen = Screen()
+player = Player()
 screen.wipe()
 
 # Countdown till start
-game_start = False
-
-while True:
-    screen.wipe()
-    keys_pressed()
-    print(game_start)
-    if game_start == True:
-        print('...')
-        break
-
+game_start = True
 
 while game_start:
     screen.game_start()
     game_start = False
 
+# Game loop
 while True:
+    screen.wipe()
+    player.update()
     pygame.display.flip()
